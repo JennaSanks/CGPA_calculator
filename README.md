@@ -22,7 +22,7 @@ A simple and interactive web-based calculator to compute SGPA (Semester Grade Po
   - Uses weighted formula (not simple average)
 
 - ⚡ Dynamic Tables
-  
+     
   - Enter number of subjects → rows generated automatically
   - Enter number of semesters → CGPA table generated
 
