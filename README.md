@@ -1,6 +1,6 @@
 🎓 SGPA & CGPA Calculator
 
-A simple and interactive web-based calculator to compute SGPA (Semester Grade Point Average) and CGPA (Cumulative Grade Point Average) based on the DYP-style grading system.
+A simple and interactive web-based calculator to compute SGPA (Semester Grade Point Average) and CGPA (Cumulative Grade Point Average) based on the grading system.
 
 ---
 
