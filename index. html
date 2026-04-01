@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGPA & CGPA Calculator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #334155;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background: #334155;
+}
+
+input, select {
+    padding: 8px;
+    width: 90%;
+    border-radius: 5px;
+    border: none;
+}
+
+button {
+    padding: 10px;
+    background: #38bdf8;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #0ea5e9;
+}
+
+.result {
+    font-size: 22px;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>SGPA Calculator</h1>
+
+<div class="card">
+    <label>Select Input Style:</label>
+    <select id="mode" onchange="onModeSelect()">
+        <option value="">-- Select Style --</option>
+        <option value="free">Free Style</option>
+        <option value="detailed">ISE + MSE + ESE</option>
+    </select>
+</div>
+
+<!-- SUBJECT INPUT (HIDDEN INITIALLY) -->
+<div class="card" id="subjectSection" style="display:none;">
+    <label>Enter Number of Subjects:</label>
+    <input type="number" id="subjectCountInput">
+    <button onclick="generateSubjects()">Generate Subjects</button>
+</div>
+
+<table>
+    <thead id="thead"></thead>
+    <tbody id="tbody"></tbody>
+</table>
+
+<button onclick="calculateSGPA()">Calculate SGPA</button>
+
+<div class="result" id="sgpaResult"></div>
+
+<!-- CGPA SECTION -->
+<div id="cgpaSection" style="display:none;">
+    <h1>CGPA Calculator</h1>
+
+    <div class="card">
+        <label>Enter Number of Semesters:</label>
+        <input type="number" id="semCountInput">
+        <button onclick="generateSemesters()">Generate Semesters</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Semester</th>
+                <th>SGPA</th>
+                <th>Credits</th>
+            </tr>
+        </thead>
+        <tbody id="cgpaBody"></tbody>
+    </table>
+
+    <button onclick="calculateCGPA()">Calculate CGPA</button>
+
+    <div class="result" id="cgpaResult"></div>
+</div>
+
+</div>
+
+<script>
+function onModeSelect() {
+    document.getElementById('subjectSection').style.display = 'block';
+    document.getElementById('thead').innerHTML = '';
+    document.getElementById('tbody').innerHTML = '';
+}
+
+function createHeader() {
+    const mode = document.getElementById('mode').value;
+    const thead = document.getElementById('thead');
+
+    if (mode === 'free') {
+        thead.innerHTML = `
+            <tr>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Total</th>
+                <th>Credits</th>
+            </tr>`;
+    } else {
+        thead.innerHTML = `
+            <tr>
+                <th>Subject</th>
+                <th>ISE 1</th>
+                <th>ISE 2</th>
+                <th>MSE</th>
+                <th>ESE</th>
+                <th>Total</th>
+                <th>Credits</th>
+            </tr>`;
+    }
+}
+
+function generateSubjects() {
+    const count = parseInt(document.getElementById('subjectCountInput').value);
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+
+    createHeader();
+    const mode = document.getElementById('mode').value;
+
+    for (let i = 1; i <= count; i++) {
+        let row = document.createElement('tr');
+
+        if (mode === 'free') {
+            row.innerHTML = `
+                <td>Sub ${i}</td>
+                <td><input type="number" class="marks"></td>
+                <td><input type="number" class="total"></td>
+                <td><input type="number" class="credits"></td>
+            `;
+        } else {
+            row.innerHTML = `
+                <td>Sub ${i}</td>
+                <td><input type="number" class="ise1"></td>
+                <td><input type="number" class="ise2"></td>
+                <td><input type="number" class="mse"></td>
+                <td><input type="number" class="ese"></td>
+                <td><input type="number" class="total"></td>
+                <td><input type="number" class="credits"></td>
+            `;
+        }
+
+        tbody.appendChild(row);
+    }
+}
+
+function getGradePoint(p) {
+    if (p >= 90) return 10;
+    if (p >= 80) return 9;
+    if (p >= 70) return 8;
+    if (p >= 60) return 7;
+    if (p >= 50) return 6;
+    if (p >= 45) return 5;
+    if (p >= 40) return 4;
+    return 3;
+}
+
+function calculateSGPA() {
+    const mode = document.getElementById('mode').value;
+    const rows = document.querySelectorAll('#tbody tr');
+
+    let totalPoints = 0;
+    let totalCredits = 0;
+
+    rows.forEach(row => {
+        let percentage = 0;
+        let credits = parseFloat(row.querySelector('.credits').value);
+
+        if (mode === 'free') {
+            const marks = parseFloat(row.querySelector('.marks').value);
+            const total = parseFloat(row.querySelector('.total').value);
+            percentage = (marks / total) * 100;
+        } else {
+            const ise1 = parseFloat(row.querySelector('.ise1').value) || 0;
+            const ise2 = parseFloat(row.querySelector('.ise2').value) || 0;
+            const mse = parseFloat(row.querySelector('.mse').value) || 0;
+            const ese = parseFloat(row.querySelector('.ese').value) || 0;
+            const total = parseFloat(row.querySelector('.total').value);
+
+            const obtained = ise1 + ise2 + mse + ese;
+            percentage = (obtained / total) * 100;
+        }
+
+        const grade = getGradePoint(percentage);
+        totalPoints += grade * credits;
+        totalCredits += credits;
+    });
+
+    const sgpa = (totalPoints / totalCredits).toFixed(2);
+    document.getElementById('sgpaResult').innerText = "SGPA: " + sgpa;
+
+    document.getElementById('cgpaSection').style.display = 'block';
+}
+
+function generateSemesters() {
+    const count = parseInt(document.getElementById('semCountInput').value);
+    const body = document.getElementById('cgpaBody');
+    body.innerHTML = '';
+
+    for (let i = 1; i <= count; i++) {
+        let row = document.createElement('tr');
+        row.innerHTML = `
+            <td>Sem ${i}</td>
+            <td><input type="number" class="sgpa"></td>
+            <td><input type="number" class="credits"></td>
+        `;
+        body.appendChild(row);
+    }
+}
+
+function calculateCGPA() {
+    const rows = document.querySelectorAll('#cgpaBody tr');
+
+    let total = 0;
+    let totalCredits = 0;
+
+    rows.forEach(row => {
+        const sgpa = parseFloat(row.querySelector('.sgpa').value);
+        const credits = parseFloat(row.querySelector('.credits').value);
+
+        total += sgpa * credits;
+        totalCredits += credits;
+    });
+
+    const cgpa = (total / totalCredits).toFixed(2);
+    document.getElementById('cgpaResult').innerText = "CGPA: " + cgpa;
+}
+</script>
+
+</body>
+</html>
